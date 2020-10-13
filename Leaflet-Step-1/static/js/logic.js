@@ -12,14 +12,27 @@ function createFeatures(earthquakeData) {
   // Define a function we want to run once for each feature in the features array
   // Give each feature a popup describing the place and time of the earthquake
   function onEachFeature(feature, layer) {
-    layer.bindPopup("<h3>" + feature.properties.place +
-      "</h3><hr><p>" + new Date(feature.properties.time) + "</p>");
+    layer.bindPopup("<h3>" + (feature.properties.type).toUpperCase() +
+      "</h3><hr><p><a>Time: </a>" + new Date(feature.properties.time) + "</p>" +
+      "</h3><hr><p><a>Location: </a>" + feature.properties.place + "</p>" +
+      "</h3><hr><p><a>Magnitude: </a>" + feature.properties.mag + "</p>");
   }
 
   // Create a GeoJSON layer containing the features array on the earthquakeData object
   // Run the onEachFeature function once for each piece of data in the array
   var earthquakes = L.geoJSON(earthquakeData, {
-    onEachFeature: onEachFeature
+    onEachFeature: onEachFeature,
+    pointToLayer: function (feature, latlng) {
+      var style = {
+      radius: 5*feature.properties.mag,
+      fillColor: "white",
+      color: "black",
+      weight: 1,
+      opacity: 1,
+      fillOpacity: 0.8
+      };
+      return L.circleMarker(latlng, style);
+  }
   });
 
   // Sending our earthquakes layer to the createMap function
@@ -34,7 +47,7 @@ function createMap(earthquakes) {
     tileSize: 512,
     maxZoom: 18,
     zoomOffset: -1,
-    id: "mapbox/streets-v11",
+    id: "mapbox/satellite-streets-v11",
     accessToken: API_KEY
   });
 
@@ -47,7 +60,7 @@ function createMap(earthquakes) {
 
   // Define a baseMaps object to hold our base layers
   var baseMaps = {
-    "Street Map": streetmap,
+    "Satellite": streetmap,
     "Dark Map": darkmap
   };
 
@@ -72,63 +85,3 @@ function createMap(earthquakes) {
     collapsed: false
   }).addTo(myMap);
 }
-
-
-// console.log("hello")
-
-// // Creating map object
-// var myMap = L.map("map", {
-//     center: [34.0522, -118.2437],
-//     zoom: 8
-// });
-
-// // Adding tile layer
-// L.tileLayer("https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token={accessToken}", {
-//   attribution: "© <a href='https://www.mapbox.com/about/maps/'>Mapbox</a> © <a href='http://www.openstreetmap.org/copyright'>OpenStreetMap</a> <strong><a href='https://www.mapbox.com/map-feedback/' target='_blank'>Improve this map</a></strong>",
-//   tileSize: 550,
-//   maxZoom: 4,
-//   zoomOffset: -1,
-//   id: "mapbox/satellite-streets-v11",
-//   accessToken: API_KEY
-// }).addTo(myMap);
-
-
-// var url = "https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_week.geojson"
-
-// d3.json(url, function(data) {
-//   // Creating a geoJSON layer with the retrieved data
-//   L.geoJson(data, {
-//     style: function(feature) {
-//         return {
-//           radius: markerSize(feature.properties.mag),
-//           fillColor: colorScale(feature.properties.mag)
-//         }
-//     }
-//   }).addTo(myMap);
-// });
-
-
-//  // Binding a pop-up to each layer
-// function onEachFeature(feature, layer) {
-//         layer.bindPopup("Zip Code: " + feature.properties.place + "<br>Median Household Income:<br>" +
-//             "$" + feature.properties.MHI2016);
-// }
-
-//     // Create a new marker cluster group
-//     var markers = L.markerClusterGroup();
-
-//         for (var i = 0; i < response.length; i++) { 
-
-//             var location = response.features[i];
-
-//             if (location) {
-
-//                 // Add a new marker to the cluster group and bind a pop-up
-//                 markers.addLayer(L.marker([location.geometry.coordinates[1], location.geometry.coordinates[0]])
-//                     .bindPopup(response[i].descriptor));  
-
-//         }
-//     }
-
-//   // Add our marker cluster layer to the map
-//   myMap.addLayer(markers);
