@@ -10,8 +10,8 @@ d3.json(queryUrl, function(data) {
   createFeatures(data.features);
 });
 
-// Create Function for colour Scale
-function getColor(d) {
+// Create Color Function for colour Scale
+function colors(d) {
   return  d > 10000 ? '#BD0026' :
           d > 90    ? '#E31A1C' :
           d > 70    ? '#FC4E2A' :
@@ -24,7 +24,7 @@ function getColor(d) {
 function createFeatures(earthquakeData) {
 
 // Define a function we want to run once for each feature in the features array
-// Give each feature a popup describing the place and time of the earthquake
+// Give each feature a popup describing the event, time/place, and magnitude of the earthquake
   function onEachFeature(feature, layer) {
     layer.bindPopup("<h3>" + (feature.properties.type).toUpperCase() +
       "</h3><hr><p><a>Time: </a>" + new Date(feature.properties.time) + "</p>" +
@@ -32,14 +32,14 @@ function createFeatures(earthquakeData) {
       "</h3><hr><p><a>Magnitude: </a>" + feature.properties.mag + "</p>");
   }
 
-// Create a GeoJSON layer containing the features array on the earthquakeData object
+// Create a GeoJSON layer containing the features array on the earthquake data
 // Run the onEachFeature function once for each piece of data in the array
   var earthquakes = L.geoJSON(earthquakeData, {
     onEachFeature: onEachFeature,
     pointToLayer: function (feature, latlng) {
       var style = {
       radius: 3*(feature.properties.mag),
-      fillColor: getColor(feature.geometry.coordinates[2]),
+      fillColor: colors(feature.geometry.coordinates[2]),
       color: "Black",
       weight: 1,
       opacity: 1,
@@ -91,13 +91,13 @@ function createMap(earthquakes) {
   // Define layer for the tectonic plates
   var tectonicPlates = new L.LayerGroup();
 
-// Create overlay object to hold our layers
+// Create overlay object to hold earthquake and tectonic plate layers
   var overlayMaps = {
     "Earthquakes": earthquakes,
     "Tectonic Plates": tectonicPlates
   };
 
-// Create our map, giving it the streetmap and earthquakes layers to display on load
+// Create our map, giving it the darkmap, earthquakes, and tectonic plate layers to display
   var myMap = L.map("map", {
     center: [
       36.756107, -1.030593
@@ -109,7 +109,7 @@ function createMap(earthquakes) {
 // Add Fault lines data
     d3.json(tectonicPlatesURL, function(plateData) {
       
-// Adding our geoJSON data, along with style information, to the tectonicplates
+// Add our geoJSON data to the tectonicplates
 
       L.geoJson(plateData, {
         color: "#4292c6",
@@ -119,9 +119,7 @@ function createMap(earthquakes) {
       .addTo(tectonicPlates);
   });
 
-// Create a layer control
-// Pass in our baseMaps and overlayMaps
-// Add the layer control to the map
+// Create a layer control and pass in the base/over laymaps
   L.control.layers(baseMaps, overlayMaps, {
       collapsed: false
     }).addTo(myMap);
@@ -137,13 +135,15 @@ function createMap(earthquakes) {
 // loop through our density intervals and generate a label with a colored square for each interval
     for (var i = 0; i < colourscale.length; i++) {
         leg.innerHTML +=
-            '<i style="background:' + getColor(colourscale[i] + 1) + '"></i> ' +
+            '<i style="background:' + colors(colourscale[i] + 1) + '"></i> ' +
             colourscale[i] + (colourscale[i + 1] ? '&ndash;' + colourscale[i + 1] + '<br>' : '+');
     }
 
     return leg;
 };
 
+// Add Legend to the Map
 legend.addTo(myMap);
 
 }
+

@@ -14,9 +14,9 @@ html {
   color: rgb(250, 246, 246);
 }
 .legend i {
-  width: 18px;
+  width: 30px;
   height: 18px;
   float: left;
-  margin-right: 7px;
+  margin-right: 10px;
   opacity: 1;
 }
